@@ -1,0 +1,18 @@
+FROM node:13.12.0-alpine as builder
+WORKDIR /app
+ENV PATH /app/node_modules/.bin:$PATH
+COPY package.json ./
+RUN npm install --silent
+COPY . ./
+
+ARG REACT_APP_BACKEND
+
+RUN REACT_APP_BACKEND=$REACT_APP_BACKEND SKIP_PREFLIGHT_CHECK=true npm run build
+
+# Stage 2
+FROM node:13.12.0-alpine
+WORKDIR /usr/src/app
+COPY --from=builder /app/build /usr/src/app/build
+COPY --from=builder /app/src/staticfiles /usr/src/app/src/staticfiles
+RUN npm install -g serve
+ENTRYPOINT [ "serve", "-s", "build", "-l", "3000" ]

@@ -1,0 +1,54 @@
+FROM python:3.9.1-alpine as builder
+
+# set work directory
+WORKDIR /usr/src/app
+
+# install psycopg2 dependencies
+RUN apk update \
+    && apk add \
+    bash\
+    g++\
+    gcc \
+    musl-dev \
+    postgresql-dev \
+    python3-dev
+    
+# install python packages
+RUN pip install --upgrade pip \
+    && pip install --upgrade wheel
+COPY ./requirements.txt /usr/src/app/requirements.txt
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requirements.txt
+
+# pull official base image
+FROM python:3.9.1-alpine
+
+# create the app user
+RUN addgroup -S app && adduser -S app -G app
+
+# set work directory
+WORKDIR /usr/src/app
+
+# install dependencies
+RUN apk update && apk add postgresql-libs gcc g++ musl-dev
+COPY --from=builder /usr/src/app/wheels /wheels
+RUN pip install --upgrade pip
+RUN pip install --no-cache /wheels/*
+
+#copy entrypoint.prod.sh
+COPY ./entrypoint.sh /usr/src/app/entrypoint.sh
+
+#setting file permissions
+RUN chmod 700 /usr/src/app/entrypoint.sh
+RUN chmod +x /usr/src/app/entrypoint.sh
+
+# copy project
+COPY . /usr/src/app/
+
+# chown all the files to the app user
+RUN chown -R app:app /usr/src/app/
+
+# change to the app user
+USER app
+
+# run entrypoint.sh
+ENTRYPOINT ["sh", "/usr/src/app/entrypoint.sh"]

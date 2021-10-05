@@ -1,0 +1,48 @@
+version: '3.7'
+
+services: 
+    backend:
+        container_name: bustaskmanagerbackTest
+        build:
+            context: ./flask
+            dockerfile: dockerfile.test
+        volumes: 
+            - ./flask:/usr/src/app
+            - mediafiles:/usr/src/app/mediafiles
+        expose:
+            - 5000
+        environment: 
+            - FLASK_DEBUG=1
+            - FLASK_APP=./app.py
+            - FRONTEND_URL=https://lusbydevelopment.com
+            - DATABASE_URL=postgresql://busTaskManager:busT752askMgasdegawe275anager1995@db:5432/busTaskManager # swap POSTGRES_PASSWORD for the value defined in the db service
+            - SECRET_KEY=ABEediJyhbn08699921201268357N # random string
+            - SECURITY_PASSWORD_SALT=9466771788827rtybgh38294BTR66771788827382N # random string
+            - DEFAULT_USER=Tim
+            - DEFAULT_PASSWORD=Test123
+            - MAIN_CONFIG=0
+            - FLASK_ENV=development
+            - VERIFY_SSL=0
+        depends_on: 
+            - db
+        stdin_open: true
+        networks: 
+            - database
+        tty: true
+    db:
+        container_name: busManager_test_database
+        image: postgres:12.0-alpine
+        volumes: 
+            - postgres_data:/var/lib/postgresql/data
+        environment: 
+            - POSTGRES_USER=busTaskManager
+            - POSTGRES_PASSWORD=busT752askMgasdegawe275anager1995
+            - POSTGRES_DB=busTaskManager
+        networks: 
+            - database
+
+volumes:
+    postgres_data:
+    mediafiles:
+networks: 
+    database:

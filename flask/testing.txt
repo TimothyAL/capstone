@@ -1,0 +1,17 @@
+test_accounts (testing.unit_tests.AppTests) ... ok
+test_add_and_remove_user_from_team (testing.unit_tests.AppTests) ... ok
+test_create_user (testing.unit_tests.AppTests) ... ok
+test_get_all_users (testing.unit_tests.AppTests) ... ok
+test_get_user_assigned_tasks (testing.unit_tests.AppTests) ... ok
+test_if_test (testing.unit_tests.AppTests) ... ok
+test_login (testing.unit_tests.AppTests) ... ok
+test_logout (testing.unit_tests.AppTests) ... ok
+test_modify_user (testing.unit_tests.AppTests) ... ok
+test_sub_account (testing.unit_tests.AppTests) ... ok
+test_tasks (testing.unit_tests.AppTests) ... ok
+test_teams (testing.unit_tests.AppTests) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 10.293s
+
+OK

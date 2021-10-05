@@ -1,0 +1,17 @@
+eventlet==0.30.0
+flask==1.1.2
+flask-restx
+flask_cors==3.0.9
+flask_script==2.0.6
+Flask_JWT_Extended
+Flask-Migrate==2.5.2
+Flask-SocketIO==5.1.0
+Flask-SQLAlchemy==2.4.1
+gunicorn==20.0.4
+itsdangerous==1.1.0
+passlib==1.7.4
+Psycopg2==2.8.3
+SQLAlchemy-serializer==1.3.4.2
+requests
+pytz
+Werkzeug==1.0.1
