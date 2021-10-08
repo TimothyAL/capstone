@@ -1,0 +1,95 @@
+version: '3.7'
+
+services: 
+    frontend:
+        container_name: busManager_front
+        build: # if you choose to pre build the image comment out the build configurations
+            context: ./react
+            dockerfile: dockerfile.dev # change this to dockerfile.prod to build the static images for a deployment environment
+        # image:  # if you choose to pre build the images uncomment this line and insert your repository location
+        environment: 
+            - REACT_APP_BACKEND=https://localhost 
+            - CHOKIDAR_USEPOLLING=true
+        volumes: 
+            - ./react:/app
+            - node_modules:/app/node_modules
+            - staticfiles:/app/src/staticfiles
+        expose: 
+            - 3000 # in a production environment when using docker-swarm comment out the expose settings
+        networks: 
+            - frontend
+        stdin_open: true
+        tty: true
+    backend:
+        container_name: busManager_back
+        # image  # if you choose to pre build the images uncomment this line and insert your repository location
+        build: # if you choose to pre build the images comment out the build configurations
+            context: ./flask
+            dockerfile: dockerfile.dev # change this to dockerfile.prod for a production environment
+        volumes: 
+            - ./flask:/usr/src/app
+            - mediafiles:/usr/src/app/mediafiles
+        expose: # in a production envrionment when using docker-swarm comment out the expose settings
+            - 5000
+        environment: 
+            - FLASK_DEBUG=1 # switch this to 1 to switch flask to debug mode
+            - FLASK_APP=./app.py
+            - FRONTEND_URL=https://localhost # the location of the deployment
+            - DATABASE_URL=postgresql://busTaskManager:jfasdoib@db:5432/busTaskManager 
+            - SECRET_KEY=bioabaweiuv # random string
+            - SECURITY_PASSWORD_SALT=ksdjfalioce # random string
+            - DEFAULT_USER=Test # the username of your default account
+            - DEFAULT_PASSWORD=Test # the initial password for your default account
+            - MAIN_CONFIG=0 # switch this to 1 in order to use production config settings
+            - FLASK_ENV=development # this can be either production or development depending on your needs
+            - VERIFY_SSL=0 # switch this to 1 if you have a valid ssl certificate
+        depends_on: 
+            - db
+        stdin_open: true
+        networks: 
+            - frontend
+            - database
+        tty: true
+    db:
+        container_name: busManager_database
+        image: postgres:12.0-alpine
+        volumes: 
+            - postgres_data:/var/lib/postgresql/data
+        environment: 
+            - POSTGRES_USER=busTaskManager
+            - POSTGRES_PASSWORD=jfasdoib
+            - POSTGRES_DB=busTaskManager
+        networks: 
+            - database
+
+    nginx:
+        container_name: busManager_nginx
+        build:
+            context: ./Nginx
+            dockerfile: dockerfile # change this to dockerfile.prod to provision an ssl cert from letsencrypt
+        restart: unless-stopped
+        environment: 
+            - CERTBOT_EMAIL=0 # insert your email if using the dockerfile.prod to associate your email with with the ssl cert
+        volumes: 
+            - staticfiles:/usr/src/app/staticfiles
+            - mediafiles:/usr/src/app/mediafiles
+            - letsencrypt:/etc/letsencrypt
+        ports: 
+            - 443:443
+            - 80:80
+        depends_on: 
+            - frontend
+            - backend
+        networks: 
+            - frontend
+            - database
+
+volumes: 
+    postgres_data:
+    staticfiles:
+    node_modules:
+    mediafiles:
+    letsencrypt:
+networks: 
+    frontend:
+    database:
